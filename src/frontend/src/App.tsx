@@ -14,6 +14,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Toaster } from "@/components/ui/sonner";
 import { Textarea } from "@/components/ui/textarea";
 import { useActor } from "@/hooks/useActor";
@@ -21,6 +28,7 @@ import {
   CheckCircle2,
   ChevronRight,
   Clock,
+  Info,
   Loader2,
   Mail,
   MapPin,
@@ -117,6 +125,18 @@ const SERVICES = [
     tagline: "Cooling & compressor repairs",
     image: "/assets/generated/service-fridge.dim_600x400.jpg",
   },
+  {
+    id: "mobile-repair",
+    name: "Mobile & Smartphone Repair",
+    tagline: "Expert screen, battery, and software fix",
+    image: "/assets/generated/service-mobile-repair.dim_600x400.jpg",
+  },
+  {
+    id: "laptop-repair",
+    name: "Laptop & Computer Repair",
+    tagline: "Hardware and Windows/Software solutions",
+    image: "/assets/generated/service-laptop-repair.dim_600x400.jpg",
+  },
 ];
 
 const REVIEWS = [
@@ -201,6 +221,28 @@ function BookingModal({ service, onClose }: BookingModalProps) {
     setLoading(true);
     try {
       await actor.bookService(form.name, form.phone, form.area, service.name);
+
+      // TODO: Replace with your actual EmailJS keys from emailjs.com
+      // Fire-and-forget email notification to admin
+      fetch("https://api.emailjs.com/api/v1.0/email/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          service_id: "service_rfs",
+          template_id: "template_booking_notify",
+          user_id: "YOUR_EMAILJS_PUBLIC_KEY",
+          template_params: {
+            to_email: "Roorkeefairservices@gmail.com",
+            customer_name: form.name,
+            phone: form.phone,
+            service: service.name,
+            location: form.area,
+          },
+        }),
+      }).catch(() => {
+        // Silent fail — booking already confirmed
+      });
+
       toast.success("Booking confirmed! We'll call you shortly.");
       onClose();
       setForm({ name: "", phone: "", area: "" });
@@ -244,7 +286,7 @@ function BookingModal({ service, onClose }: BookingModalProps) {
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="book-area">Area in Roorkee</Label>
+            <Label htmlFor="book-area">Area / Location</Label>
             <Input
               id="book-area"
               placeholder="e.g. Civil Lines, Model Town..."
@@ -456,7 +498,7 @@ function TrackTechnicianSection() {
 // ─── Main App ──────────────────────────────────────────────────────────────
 
 export default function App() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [bookingService, setBookingService] = useState<
     (typeof SERVICES)[0] | null
   >(null);
@@ -470,11 +512,11 @@ export default function App() {
   const submitContact = useSubmitContact();
 
   const navLinks = [
-    { label: "Home", href: "#home" },
     { label: "Services", href: "#services" },
     { label: "Track Technician", href: "#track" },
     { label: "Reviews", href: "#reviews" },
-    { label: "Contact", href: "#contact" },
+    { label: "Contact Us", href: "#contact" },
+    { label: "About Us", href: "#about" },
   ];
 
   async function handleContactSubmit(e: React.FormEvent) {
@@ -518,9 +560,9 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <div className="flex items-center gap-2.5">
+            <a href="#home" className="flex items-center gap-2.5">
               <img
-                src="/assets/generated/roorkee-app-logo-transparent.dim_512x512.png"
+                src="/assets/generated/roorkee-app-icon-transparent.dim_512x512.png"
                 alt="Roorkee Fair Services Logo"
                 className="w-10 h-10 rounded-full object-cover"
               />
@@ -532,7 +574,7 @@ export default function App() {
                   Services
                 </span>
               </div>
-            </div>
+            </a>
 
             {/* Desktop Nav */}
             <nav className="hidden md:flex items-center gap-6">
@@ -541,7 +583,7 @@ export default function App() {
                   key={link.label}
                   href={link.href}
                   className="text-sm font-medium text-white/70 hover:text-gold transition-colors"
-                  data-ocid={`nav.${link.label.toLowerCase().replace(" ", "-")}.link`}
+                  data-ocid={`nav.${link.label.toLowerCase().replace(/\s+/g, "-")}.link`}
                 >
                   {link.label}
                 </a>
@@ -556,57 +598,112 @@ export default function App() {
               >
                 <Phone className="w-3.5 h-3.5" /> Call Now
               </a>
-              <button
-                type="button"
-                className="md:hidden p-2 rounded-lg hover:bg-white/10 text-white"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                data-ocid="header.menu.toggle"
-              >
-                {mobileMenuOpen ? (
-                  <X className="w-5 h-5" />
-                ) : (
-                  <Menu className="w-5 h-5" />
-                )}
-              </button>
+
+              {/* Mobile Sidebar Trigger */}
+              <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+                <SheetTrigger asChild>
+                  <button
+                    type="button"
+                    className="md:hidden p-2 rounded-lg hover:bg-white/10 text-white"
+                    data-ocid="header.menu.toggle"
+                  >
+                    <Menu className="w-5 h-5" />
+                  </button>
+                </SheetTrigger>
+                <SheetContent
+                  side="left"
+                  className="w-72 p-0"
+                  style={{ background: "oklch(0.16 0.06 255)" }}
+                >
+                  <SheetHeader className="px-5 pt-5 pb-4 border-b border-white/10">
+                    <SheetTitle asChild>
+                      <div className="flex items-center gap-3">
+                        <img
+                          src="/assets/generated/roorkee-app-icon-transparent.dim_512x512.png"
+                          alt="Roorkee Fair Services Logo"
+                          className="w-10 h-10 rounded-full object-cover"
+                        />
+                        <div>
+                          <p className="font-display font-bold text-base text-white leading-tight">
+                            Roorkee Fair
+                          </p>
+                          <p className="text-[11px] text-gold -mt-0.5">
+                            Services
+                          </p>
+                        </div>
+                      </div>
+                    </SheetTitle>
+                  </SheetHeader>
+
+                  <nav className="px-4 py-4 flex flex-col gap-1">
+                    {navLinks.map((link) => (
+                      <a
+                        key={link.label}
+                        href={link.href}
+                        onClick={() => setSidebarOpen(false)}
+                        className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-white/80 hover:text-gold hover:bg-white/5 transition-colors"
+                        data-ocid={`sidebar.${link.label.toLowerCase().replace(/\s+/g, "-")}.link`}
+                      >
+                        {link.label === "Services" && (
+                          <Star className="w-4 h-4 text-gold" />
+                        )}
+                        {link.label === "Track Technician" && (
+                          <Navigation className="w-4 h-4 text-gold" />
+                        )}
+                        {link.label === "Reviews" && (
+                          <Users className="w-4 h-4 text-gold" />
+                        )}
+                        {link.label === "Contact Us" && (
+                          <Phone className="w-4 h-4 text-gold" />
+                        )}
+                        {link.label === "About Us" && (
+                          <Info className="w-4 h-4 text-gold" />
+                        )}
+                        {link.label}
+                      </a>
+                    ))}
+                  </nav>
+
+                  <div className="px-4 mt-4">
+                    <a
+                      href="tel:+917248116630"
+                      onClick={() => setSidebarOpen(false)}
+                      className="flex items-center justify-center gap-2 bg-gold text-midnight-deep font-semibold py-3 rounded-full w-full hover:bg-gold-dark transition-colors"
+                      data-ocid="sidebar.call.primary_button"
+                    >
+                      <Phone className="w-4 h-4" /> Call Now
+                    </a>
+                    <a
+                      href="https://wa.me/917248116630"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setSidebarOpen(false)}
+                      className="flex items-center justify-center gap-2 mt-3 font-semibold py-3 rounded-full w-full text-white border border-white/20 hover:border-green-400 hover:text-green-400 transition-colors text-sm"
+                      data-ocid="sidebar.whatsapp.primary_button"
+                    >
+                      <svg
+                        role="img"
+                        aria-label="WhatsApp"
+                        viewBox="0 0 24 24"
+                        className="w-4 h-4 fill-current"
+                      >
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                      </svg>
+                      WhatsApp Us
+                    </a>
+                  </div>
+
+                  {/* Sidebar footer */}
+                  <div className="absolute bottom-5 left-0 right-0 px-5">
+                    <p className="text-white/30 text-xs text-center">
+                      Roorkee & Manglaur · Open 8AM–9PM
+                    </p>
+                  </div>
+                </SheetContent>
+              </Sheet>
             </div>
           </div>
         </div>
-
-        {/* Mobile Menu */}
-        <AnimatePresence>
-          {mobileMenuOpen && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="md:hidden overflow-hidden border-t border-white/10"
-              style={{ background: "oklch(0.18 0.06 255)" }}
-            >
-              <div className="px-4 py-3 flex flex-col gap-1">
-                {navLinks.map((link) => (
-                  <a
-                    key={link.label}
-                    href={link.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="px-3 py-2.5 rounded-lg text-sm font-medium text-white/80 hover:text-gold hover:bg-white/5 transition-colors"
-                    data-ocid={`nav.mobile.${link.label.toLowerCase().replace(" ", "-")}.link`}
-                  >
-                    {link.label}
-                  </a>
-                ))}
-                <a
-                  href="tel:+917248116630"
-                  className="mt-2 flex items-center justify-center gap-2 bg-gold text-midnight-deep font-semibold py-2.5 rounded-full"
-                  data-ocid="header.mobile_call.primary_button"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <Phone className="w-4 h-4" /> Call Now
-                </a>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </header>
 
       {/* ── HERO ── */}
@@ -644,8 +741,8 @@ export default function App() {
               <span className="text-gold">at Your Doorstep</span>
             </h1>
             <p className="text-lg md:text-xl text-white/75 mb-8 max-w-xl">
-              Verified local experts for 13+ home & commercial services across
-              Roorkee. Fast, affordable, trusted.
+              Verified local experts for 15+ home & digital services across
+              Roorkee and Manglaur. Fast, affordable, trusted.
             </p>
 
             <div className="flex flex-wrap gap-3 mb-10">
@@ -701,7 +798,7 @@ export default function App() {
             className="text-center mb-12"
           >
             <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-gold text-midnight-deep mb-3">
-              13 Services Available
+              15 Services Available
             </span>
             <h2 className="font-display text-3xl md:text-4xl font-bold text-midnight-deep mb-3">
               Our Services
@@ -733,6 +830,15 @@ export default function App() {
                     src={svc.image}
                     alt={svc.name}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    onError={(e) => {
+                      const el = e.currentTarget;
+                      el.style.display = "none";
+                      const parent = el.parentElement;
+                      if (parent) {
+                        parent.style.background =
+                          "linear-gradient(135deg, oklch(0.18 0.06 255), oklch(0.28 0.09 260))";
+                      }
+                    }}
                   />
                 </div>
                 {/* Gradient */}
@@ -829,6 +935,70 @@ export default function App() {
         </div>
       </section>
 
+      {/* ── ABOUT US ── */}
+      <section
+        id="about"
+        className="py-16 md:py-24"
+        style={{
+          background:
+            "linear-gradient(135deg, oklch(0.14 0.05 255) 0%, oklch(0.20 0.07 258) 100%)",
+        }}
+      >
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center"
+          >
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-gold text-midnight-deep mb-5">
+              <Info className="w-3 h-3" /> About Us
+            </span>
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-white mb-6">
+              Who We Are
+            </h2>
+            <div
+              className="rounded-2xl p-8 md:p-12 border border-gold/20 relative overflow-hidden"
+              style={{ background: "oklch(0.18 0.06 255 / 0.7)" }}
+            >
+              {/* Gold decorative accent */}
+              <div
+                className="absolute top-0 left-1/2 -translate-x-1/2 h-1 w-24 rounded-full"
+                style={{ background: "oklch(0.78 0.14 85)" }}
+              />
+              <img
+                src="/assets/generated/roorkee-app-icon-transparent.dim_512x512.png"
+                alt="Roorkee Fair Services"
+                className="w-16 h-16 rounded-full mx-auto mb-6 object-cover border-2 border-gold/40"
+              />
+              <p className="text-white/90 text-lg md:text-xl leading-relaxed font-medium">
+                Roorkee Fair Services is a premier local platform providing
+                verified experts for all home and digital needs. We ensure
+                quality, trust, and timely service across{" "}
+                <span className="text-gold font-semibold">Roorkee</span> and{" "}
+                <span className="text-gold font-semibold">Manglaur</span>.
+              </p>
+              <div className="mt-8 flex flex-wrap justify-center gap-6">
+                {[
+                  { value: "500+", label: "Happy Customers" },
+                  { value: "15+", label: "Services" },
+                  { value: "100%", label: "Verified Pros" },
+                  { value: "Same Day", label: "Response" },
+                ].map((stat) => (
+                  <div key={stat.label} className="text-center">
+                    <p className="text-gold font-display text-2xl font-bold">
+                      {stat.value}
+                    </p>
+                    <p className="text-white/60 text-xs mt-0.5">{stat.label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* ── CONTACT ── */}
       <section id="contact" className="py-16 md:py-20 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -843,7 +1013,7 @@ export default function App() {
               Get in Touch
             </span>
             <h2 className="font-display text-3xl md:text-4xl font-bold text-midnight-deep mb-3">
-              Book a Service
+              Contact Us
             </h2>
             <p className="text-muted-foreground max-w-lg mx-auto">
               Fill in the form and our team will call you back within minutes.
@@ -971,40 +1141,65 @@ export default function App() {
                   Contact Information
                 </h3>
                 <div className="space-y-5">
-                  {[
-                    {
-                      icon: Phone,
-                      label: "Phone / WhatsApp",
-                      value: "+91 7248116630",
-                    },
-                    {
-                      icon: Mail,
-                      label: "Email",
-                      value: "contact@roorkeefairservices.in",
-                    },
-                    {
-                      icon: MapPin,
-                      label: "Location",
-                      value: "Roorkee, Uttarakhand 247667",
-                    },
-                    {
-                      icon: Clock,
-                      label: "Business Hours",
-                      value: "Mon–Sun, 8:00 AM – 9:00 PM",
-                    },
-                  ].map(({ icon: Icon, label, value }) => (
-                    <div key={label} className="flex items-start gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-gold/20 border border-gold/30 flex items-center justify-center flex-shrink-0">
-                        <Icon className="w-5 h-5 text-gold" />
-                      </div>
-                      <div>
-                        <p className="text-white/60 text-xs mb-0.5">{label}</p>
-                        <p className="text-white font-medium text-sm">
-                          {value}
-                        </p>
-                      </div>
+                  <a
+                    href="tel:+917248116630"
+                    className="flex items-start gap-4 group"
+                    data-ocid="contact.phone.link"
+                  >
+                    <div className="w-11 h-11 rounded-xl bg-gold/20 border border-gold/30 flex items-center justify-center flex-shrink-0 group-hover:bg-gold/30 transition-colors">
+                      <Phone className="w-5 h-5 text-gold" />
                     </div>
-                  ))}
+                    <div>
+                      <p className="text-white/60 text-xs mb-0.5">
+                        Phone / WhatsApp
+                      </p>
+                      <p className="text-white font-bold text-lg group-hover:text-gold transition-colors">
+                        +91 7248116630
+                      </p>
+                    </div>
+                  </a>
+
+                  <a
+                    href="mailto:Roorkeefairservices@gmail.com"
+                    className="flex items-start gap-4 group"
+                    data-ocid="contact.email.link"
+                  >
+                    <div className="w-11 h-11 rounded-xl bg-gold/20 border border-gold/30 flex items-center justify-center flex-shrink-0 group-hover:bg-gold/30 transition-colors">
+                      <Mail className="w-5 h-5 text-gold" />
+                    </div>
+                    <div>
+                      <p className="text-white/60 text-xs mb-0.5">Email</p>
+                      <p className="text-white font-medium text-sm group-hover:text-gold transition-colors break-all">
+                        Roorkeefairservices@gmail.com
+                      </p>
+                    </div>
+                  </a>
+
+                  <div className="flex items-start gap-4">
+                    <div className="w-11 h-11 rounded-xl bg-gold/20 border border-gold/30 flex items-center justify-center flex-shrink-0">
+                      <MapPin className="w-5 h-5 text-gold" />
+                    </div>
+                    <div>
+                      <p className="text-white/60 text-xs mb-0.5">Location</p>
+                      <p className="text-white font-medium text-sm">
+                        Roorkee & Manglaur, Uttarakhand
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4">
+                    <div className="w-11 h-11 rounded-xl bg-gold/20 border border-gold/30 flex items-center justify-center flex-shrink-0">
+                      <Clock className="w-5 h-5 text-gold" />
+                    </div>
+                    <div>
+                      <p className="text-white/60 text-xs mb-0.5">
+                        Business Hours
+                      </p>
+                      <p className="text-white font-medium text-sm">
+                        Mon–Sun, 8:00 AM – 9:00 PM
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -1035,7 +1230,7 @@ export default function App() {
             <div>
               <div className="flex items-center gap-2.5 mb-4">
                 <img
-                  src="/assets/generated/roorkee-app-logo-transparent.dim_512x512.png"
+                  src="/assets/generated/roorkee-app-icon-transparent.dim_512x512.png"
                   alt="Roorkee Fair Services Logo"
                   className="w-9 h-9 rounded-full object-cover"
                 />
@@ -1053,19 +1248,19 @@ export default function App() {
               <h4 className="font-semibold mb-4 text-gold">Quick Links</h4>
               <ul className="space-y-2">
                 {[
-                  "Home",
-                  "Services",
-                  "Track Technician",
-                  "Reviews",
-                  "Contact",
+                  { label: "Services", href: "#services" },
+                  { label: "Track Technician", href: "#track" },
+                  { label: "Reviews", href: "#reviews" },
+                  { label: "Contact Us", href: "#contact" },
+                  { label: "About Us", href: "#about" },
                 ].map((link) => (
-                  <li key={link}>
+                  <li key={link.label}>
                     <a
-                      href={`#${link.toLowerCase().replace(" ", "-")}`}
+                      href={link.href}
                       className="text-white/60 hover:text-gold text-sm transition-colors"
-                      data-ocid={`footer.${link.toLowerCase().replace(" ", "-")}.link`}
+                      data-ocid={`footer.${link.label.toLowerCase().replace(/\s+/g, "-")}.link`}
                     >
-                      {link}
+                      {link.label}
                     </a>
                   </li>
                 ))}
@@ -1087,19 +1282,29 @@ export default function App() {
                 </li>
                 <li>
                   <a
+                    href="mailto:Roorkeefairservices@gmail.com"
+                    className="text-white/70 hover:text-gold text-sm transition-colors flex items-center gap-2"
+                    data-ocid="footer.email.link"
+                  >
+                    <Mail className="w-3.5 h-3.5 text-gold" />
+                    Roorkeefairservices@gmail.com
+                  </a>
+                </li>
+                <li>
+                  <a
                     href="https://wa.me/917248116630"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-white/70 hover:text-gold text-sm transition-colors flex items-center gap-2"
                     data-ocid="footer.whatsapp.link"
                   >
-                    <span className="w-3.5 h-3.5 text-green-400">💬</span>
+                    <span className="text-green-400">💬</span>
                     WhatsApp Us
                   </a>
                 </li>
                 <li className="flex items-start gap-2 text-white/60 text-sm">
                   <MapPin className="w-3.5 h-3.5 text-gold mt-0.5 flex-shrink-0" />
-                  Roorkee, Uttarakhand
+                  Roorkee & Manglaur, Uttarakhand
                 </li>
               </ul>
             </div>
