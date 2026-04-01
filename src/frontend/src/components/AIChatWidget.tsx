@@ -1,3 +1,4 @@
+import emailjs from "@emailjs/browser";
 import { Loader2, MessageCircle, Send, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
@@ -12,6 +13,19 @@ interface Message {
 
 const BOT_GREETING =
   "Hello! How can I help you with your home or digital repair today?";
+
+// ---------------------------------------------------------------------------
+// EmailJS credentials
+// To activate email delivery:
+//  1. Sign up free at https://www.emailjs.com
+//  2. Add a Gmail service (connect roorkeefairservices@gmail.com)
+//  3. Create a template with variables: {{service}}, {{name}}, {{phone}}
+//     Set "To Email" to roorkeefairservices@gmail.com
+//  4. Replace the three constants below with your actual values
+// ---------------------------------------------------------------------------
+const EMAILJS_SERVICE_ID = "YOUR_SERVICE_ID"; // e.g. "service_abc123"
+const EMAILJS_TEMPLATE_ID = "YOUR_TEMPLATE_ID"; // e.g. "template_xyz789"
+const EMAILJS_PUBLIC_KEY = "YOUR_PUBLIC_KEY"; // e.g. "abc123XYZ"
 
 interface AIChatWidgetProps {
   initialOpen?: boolean;
@@ -58,30 +72,29 @@ export function AIChatWidget({
     }, 700);
   };
 
-  const sendLeadToEmail = async (
-    name: string,
-    phone: string,
-    service: string,
-  ) => {
-    try {
-      await fetch("https://formsubmit.co/ajax/roorkeefairservices@gmail.com", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
+  const sendLeadEmail = (name: string, phone: string, service: string) => {
+    // Send via EmailJS – no CORS issues, no FormSubmit dependency
+    emailjs
+      .send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        {
+          subject: "New Lead from AI Chat - Roorkee Fair Services",
+          service,
           name,
           phone,
-          service,
-          _subject: `AI Chat Lead: ${service} - Roorkee Fair Services`,
-          _captcha: "false",
-          _template: "table",
-        }),
+          to_email: "roorkeefairservices@gmail.com",
+        },
+        { publicKey: EMAILJS_PUBLIC_KEY },
+      )
+      .catch(() => {
+        // Silent fail – lead is already acknowledged in chat
+        // Fallback: also notify via WhatsApp if EmailJS is not yet configured
+        const msg = encodeURIComponent(
+          `New AI Chat Lead:\nService: ${service}\nName: ${name}\nPhone: ${phone}`,
+        );
+        window.open(`https://wa.me/917248116630?text=${msg}`, "_blank");
       });
-    } catch {
-      // silent fail — lead capture is best-effort
-    }
   };
 
   const handleSend = async () => {
@@ -107,9 +120,11 @@ export function AIChatWidget({
       const phone = trimmed;
       setStep("done");
       addBotMessage(
-        `Thank you, ${capturedName}! Our expert will call you shortly at ${phone} regarding ${capturedService || "your service request"}.`,
+        `Thank you, ${capturedName}! Our expert will call you shortly at ${phone} regarding ${
+          capturedService || "your service request"
+        }.`,
       );
-      sendLeadToEmail(capturedName, phone, capturedService);
+      sendLeadEmail(capturedName, phone, capturedService);
     } else {
       setStep("awaitService");
       addBotMessage(
@@ -183,7 +198,9 @@ export function AIChatWidget({
               {messages.map((msg) => (
                 <div
                   key={msg.id}
-                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                  className={`flex ${
+                    msg.role === "user" ? "justify-end" : "justify-start"
+                  }`}
                 >
                   <div
                     className={`max-w-[80%] px-3 py-2 text-sm leading-relaxed ${

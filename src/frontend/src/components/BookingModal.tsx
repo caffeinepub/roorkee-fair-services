@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CheckCircle, Loader2, X } from "lucide-react";
+import { MessageCircle, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 
@@ -13,55 +13,13 @@ export function BookingModal({ serviceName, onClose }: BookingModalProps) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [area, setArea] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleConfirm = (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
-    try {
-      const res = await fetch(
-        "https://formsubmit.co/ajax/roorkeefairservices@gmail.com",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({
-            name,
-            phone,
-            area,
-            service: serviceName,
-            _subject: `New Booking: ${serviceName} - Roorkee Fair Services`,
-            _captcha: "false",
-            _template: "table",
-            _replyto: "Roorkeefairservices@gmail.com",
-          }),
-        },
-      );
-
-      // FormSubmit may return non-JSON on first activation — treat any 2xx as success
-      if (res.ok) {
-        setSuccess(true);
-      } else {
-        // Try to read error body
-        let msg = "Submission failed";
-        try {
-          const data = await res.json();
-          if (data?.message) msg = data.message;
-        } catch {
-          /* ignore */
-        }
-        throw new Error(msg);
-      }
-    } catch {
-      setError("Unable to submit right now. Please call us at +91 7248116630.");
-    } finally {
-      setLoading(false);
-    }
+    const message = `Hello, I want to book ${serviceName}. My Name: ${name}, Phone: ${phone}, Area: ${area}.`;
+    const encoded = encodeURIComponent(message);
+    window.open(`https://wa.me/917248116630?text=${encoded}`, "_blank");
+    onClose();
   };
 
   return (
@@ -106,108 +64,74 @@ export function BookingModal({ serviceName, onClose }: BookingModalProps) {
           </div>
 
           <div className="p-6">
-            {success ? (
-              <div
-                className="flex flex-col items-center gap-4 py-6"
-                data-ocid="booking.success_state"
-              >
-                <CheckCircle size={56} className="text-green-500" />
-                <p className="text-center text-midnight font-semibold text-lg">
-                  Booking Submitted!
-                </p>
-                <p className="text-center text-gray-600 text-sm">
-                  Our expert will contact you shortly at {phone}.
-                </p>
-                <p className="text-center text-gray-400 text-xs">
-                  A notification has been sent to Roorkeefairservices@gmail.com
-                </p>
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="btn-gold px-6 py-2 rounded-lg text-sm font-semibold"
-                  data-ocid="booking.confirm_button"
+            <form onSubmit={handleConfirm} className="space-y-4">
+              <div className="space-y-1.5">
+                <Label
+                  htmlFor="booking-name"
+                  className="text-midnight font-semibold"
                 >
-                  Done
-                </button>
+                  Your Name
+                </Label>
+                <Input
+                  id="booking-name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Enter your full name"
+                  required
+                  className="border-gray-200 focus:border-gold focus:ring-gold"
+                  data-ocid="booking.input"
+                />
               </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-1.5">
-                  <Label
-                    htmlFor="booking-name"
-                    className="text-midnight font-semibold"
-                  >
-                    Your Name
-                  </Label>
-                  <Input
-                    id="booking-name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Enter your full name"
-                    required
-                    className="border-gray-200 focus:border-gold focus:ring-gold"
-                    data-ocid="booking.input"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label
-                    htmlFor="booking-phone"
-                    className="text-midnight font-semibold"
-                  >
-                    Phone Number
-                  </Label>
-                  <Input
-                    id="booking-phone"
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+91 XXXXX XXXXX"
-                    required
-                    className="border-gray-200 focus:border-gold focus:ring-gold"
-                    data-ocid="booking.input"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label
-                    htmlFor="booking-area"
-                    className="text-midnight font-semibold"
-                  >
-                    Area in Roorkee
-                  </Label>
-                  <Input
-                    id="booking-area"
-                    value={area}
-                    onChange={(e) => setArea(e.target.value)}
-                    placeholder="e.g. Civil Lines, IIT Area, Manglaur"
-                    required
-                    className="border-gray-200 focus:border-gold focus:ring-gold"
-                    data-ocid="booking.input"
-                  />
-                </div>
 
-                {error && (
-                  <p
-                    className="text-red-500 text-sm"
-                    data-ocid="booking.error_state"
-                  >
-                    {error}
-                  </p>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="btn-gold w-full py-3 rounded-xl font-semibold text-base flex items-center justify-center gap-2 disabled:opacity-70"
-                  data-ocid="booking.submit_button"
+              <div className="space-y-1.5">
+                <Label
+                  htmlFor="booking-phone"
+                  className="text-midnight font-semibold"
                 >
-                  {loading && <Loader2 size={18} className="animate-spin" />}
-                  {loading ? "Submitting..." : "Confirm Booking"}
-                </button>
-                <p className="text-xs text-center text-gray-400">
-                  You'll receive a call from our expert soon after booking.
-                </p>
-              </form>
-            )}
+                  Phone Number
+                </Label>
+                <Input
+                  id="booking-phone"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  type="tel"
+                  placeholder="+91 XXXXX XXXXX"
+                  required
+                  className="border-gray-200 focus:border-gold focus:ring-gold"
+                  data-ocid="booking.input"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label
+                  htmlFor="booking-area"
+                  className="text-midnight font-semibold"
+                >
+                  Area in Roorkee
+                </Label>
+                <Input
+                  id="booking-area"
+                  value={area}
+                  onChange={(e) => setArea(e.target.value)}
+                  placeholder="e.g. Civil Lines, IIT Area, Manglaur"
+                  required
+                  className="border-gray-200 focus:border-gold focus:ring-gold"
+                  data-ocid="booking.input"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="btn-gold w-full py-3 rounded-xl font-semibold text-base flex items-center justify-center gap-2"
+                data-ocid="booking.submit_button"
+              >
+                <MessageCircle size={20} />
+                Confirm Booking via WhatsApp
+              </button>
+              <p className="text-xs text-center text-gray-400">
+                Your booking details will be sent directly via WhatsApp.
+              </p>
+            </form>
           </div>
         </motion.div>
       </AnimatePresence>
