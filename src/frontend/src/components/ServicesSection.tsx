@@ -76,6 +76,41 @@ const SERVICES = [
     description: "Hardware & Windows/Software solutions",
     image: "/assets/generated/service-laptop-repair.dim_400x300.jpg",
   },
+  {
+    name: "Solar Installation & Services",
+    description: "Solar panel setup, maintenance & repair",
+    image: "/assets/generated/service-solar.dim_400x300.jpg",
+  },
+  {
+    name: "Flooring Specialists",
+    description: "Tiles & stone work, expert flooring solutions",
+    image: "/assets/generated/service-flooring.dim_400x300.jpg",
+  },
+  {
+    name: "Vehicle Services",
+    description: "Car & bus repair, full vehicle maintenance",
+    image: "/assets/generated/service-vehicle.dim_400x300.jpg",
+  },
+  {
+    name: "Taxi & Travelers",
+    description: "Tour & bus booking, local & outstation travel",
+    image: "/assets/generated/service-taxi.dim_400x300.jpg",
+  },
+  {
+    name: "Generator Services (Jantar)",
+    description: "Heavy-duty diesel generators for homes, shops & industry",
+    image: "/assets/generated/generator-services.dim_800x600.jpg",
+  },
+  {
+    name: "Generator Repair",
+    description: "Expert generator repair & maintenance for all brands",
+    image: "/assets/generated/service-generator-repair.dim_400x300.jpg",
+  },
+  {
+    name: "Generator for Rent",
+    description: "Generator rental for weddings, events & shops",
+    image: "/assets/generated/service-generator-rent.dim_400x300.jpg",
+  },
 ];
 
 interface ServicesSectionProps {
