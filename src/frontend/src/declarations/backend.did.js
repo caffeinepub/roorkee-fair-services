@@ -13,14 +13,15 @@ export const ContactForm = IDL.Record({
   'email' : IDL.Text,
   'message' : IDL.Text,
 });
-export const EventListing = IDL.Record({
-  'date' : IDL.Text,
-  'name' : IDL.Text,
-  'description' : IDL.Text,
-  'imageUrl' : IDL.Text,
-  'location' : IDL.Text,
-});
 export const Time = IDL.Int;
+export const Review = IDL.Record({
+  'id' : IDL.Nat,
+  'serviceName' : IDL.Text,
+  'reviewerName' : IDL.Text,
+  'comment' : IDL.Text,
+  'timestamp' : Time,
+  'rating' : IDL.Nat,
+});
 export const ServiceBooking = IDL.Record({
   'serviceName' : IDL.Text,
   'area' : IDL.Text,
@@ -28,66 +29,59 @@ export const ServiceBooking = IDL.Record({
   'timestamp' : Time,
   'phone' : IDL.Text,
 });
-export const ServiceListing = IDL.Record({
-  'icon' : IDL.Text,
+export const BrightBlueElectrical = IDL.Record({
   'name' : IDL.Text,
   'description' : IDL.Text,
+  'rating' : IDL.Float64,
 });
-export const VendorListing = IDL.Record({
+export const http_header = IDL.Record({
+  'value' : IDL.Text,
   'name' : IDL.Text,
-  'description' : IDL.Text,
-  'imageUrl' : IDL.Text,
-  'category' : IDL.Text,
-  'rating' : IDL.Nat,
+});
+export const http_request_result = IDL.Record({
+  'status' : IDL.Nat,
+  'body' : IDL.Vec(IDL.Nat8),
+  'headers' : IDL.Vec(http_header),
+});
+export const TransformationInput = IDL.Record({
+  'context' : IDL.Vec(IDL.Nat8),
+  'response' : http_request_result,
+});
+export const TransformationOutput = IDL.Record({
+  'status' : IDL.Nat,
+  'body' : IDL.Vec(IDL.Nat8),
+  'headers' : IDL.Vec(http_header),
 });
 
 export const idlService = IDL.Service({
-  'addEventListing' : IDL.Func(
-      [IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
-      [],
-      [],
-    ),
-  'addServiceListing' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [], []),
-  'addVendorListing' : IDL.Func(
-      [IDL.Text, IDL.Text, IDL.Text, IDL.Nat, IDL.Text],
-      [],
-      [],
-    ),
   'bookService' : IDL.Func(
       [IDL.Text, IDL.Text, IDL.Text, IDL.Text],
       [IDL.Nat],
       [],
     ),
   'getAllContactForms' : IDL.Func([], [IDL.Vec(ContactForm)], ['query']),
-  'getAllEventListings' : IDL.Func([], [IDL.Vec(EventListing)], ['query']),
+  'getAllReviews' : IDL.Func([], [IDL.Vec(Review)], ['query']),
   'getAllServiceBookings' : IDL.Func([], [IDL.Vec(ServiceBooking)], ['query']),
-  'getAllServiceListings' : IDL.Func([], [IDL.Vec(ServiceListing)], ['query']),
-  'getAllVendorListings' : IDL.Func([], [IDL.Vec(VendorListing)], ['query']),
   'getBookingsByPhone' : IDL.Func(
       [IDL.Text],
       [IDL.Vec(ServiceBooking)],
       ['query'],
     ),
-  'getBookingsByService' : IDL.Func(
-      [IDL.Text],
-      [IDL.Vec(ServiceBooking)],
-      ['query'],
-    ),
-  'getContactForm' : IDL.Func([IDL.Text], [ContactForm], ['query']),
-  'getEventListing' : IDL.Func([IDL.Text], [EventListing], ['query']),
-  'getFutureEvents' : IDL.Func([], [IDL.Vec(EventListing)], ['query']),
-  'getServiceBooking' : IDL.Func([IDL.Nat], [ServiceBooking], ['query']),
-  'getServiceListing' : IDL.Func([IDL.Text], [ServiceListing], ['query']),
-  'getVendorListing' : IDL.Func([IDL.Text], [VendorListing], ['query']),
-  'getVendorsByCategory' : IDL.Func(
-      [IDL.Text],
-      [IDL.Vec(VendorListing)],
-      ['query'],
-    ),
+  'getBrightBlueElectrical' : IDL.Func([], [BrightBlueElectrical], []),
   'submitContactForm' : IDL.Func(
       [IDL.Text, IDL.Text, IDL.Text, IDL.Text],
       [],
       [],
+    ),
+  'submitReview' : IDL.Func(
+      [IDL.Text, IDL.Nat, IDL.Text, IDL.Text],
+      [IDL.Nat],
+      [],
+    ),
+  'transform' : IDL.Func(
+      [TransformationInput],
+      [TransformationOutput],
+      ['query'],
     ),
 });
 
@@ -99,14 +93,15 @@ export const idlFactory = ({ IDL }) => {
     'email' : IDL.Text,
     'message' : IDL.Text,
   });
-  const EventListing = IDL.Record({
-    'date' : IDL.Text,
-    'name' : IDL.Text,
-    'description' : IDL.Text,
-    'imageUrl' : IDL.Text,
-    'location' : IDL.Text,
-  });
   const Time = IDL.Int;
+  const Review = IDL.Record({
+    'id' : IDL.Nat,
+    'serviceName' : IDL.Text,
+    'reviewerName' : IDL.Text,
+    'comment' : IDL.Text,
+    'timestamp' : Time,
+    'rating' : IDL.Nat,
+  });
   const ServiceBooking = IDL.Record({
     'serviceName' : IDL.Text,
     'area' : IDL.Text,
@@ -114,74 +109,60 @@ export const idlFactory = ({ IDL }) => {
     'timestamp' : Time,
     'phone' : IDL.Text,
   });
-  const ServiceListing = IDL.Record({
-    'icon' : IDL.Text,
+  const BrightBlueElectrical = IDL.Record({
     'name' : IDL.Text,
     'description' : IDL.Text,
+    'rating' : IDL.Float64,
   });
-  const VendorListing = IDL.Record({
-    'name' : IDL.Text,
-    'description' : IDL.Text,
-    'imageUrl' : IDL.Text,
-    'category' : IDL.Text,
-    'rating' : IDL.Nat,
+  const http_header = IDL.Record({ 'value' : IDL.Text, 'name' : IDL.Text });
+  const http_request_result = IDL.Record({
+    'status' : IDL.Nat,
+    'body' : IDL.Vec(IDL.Nat8),
+    'headers' : IDL.Vec(http_header),
+  });
+  const TransformationInput = IDL.Record({
+    'context' : IDL.Vec(IDL.Nat8),
+    'response' : http_request_result,
+  });
+  const TransformationOutput = IDL.Record({
+    'status' : IDL.Nat,
+    'body' : IDL.Vec(IDL.Nat8),
+    'headers' : IDL.Vec(http_header),
   });
   
   return IDL.Service({
-    'addEventListing' : IDL.Func(
-        [IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
-        [],
-        [],
-      ),
-    'addServiceListing' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [], []),
-    'addVendorListing' : IDL.Func(
-        [IDL.Text, IDL.Text, IDL.Text, IDL.Nat, IDL.Text],
-        [],
-        [],
-      ),
     'bookService' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text, IDL.Text],
         [IDL.Nat],
         [],
       ),
     'getAllContactForms' : IDL.Func([], [IDL.Vec(ContactForm)], ['query']),
-    'getAllEventListings' : IDL.Func([], [IDL.Vec(EventListing)], ['query']),
+    'getAllReviews' : IDL.Func([], [IDL.Vec(Review)], ['query']),
     'getAllServiceBookings' : IDL.Func(
         [],
         [IDL.Vec(ServiceBooking)],
         ['query'],
       ),
-    'getAllServiceListings' : IDL.Func(
-        [],
-        [IDL.Vec(ServiceListing)],
-        ['query'],
-      ),
-    'getAllVendorListings' : IDL.Func([], [IDL.Vec(VendorListing)], ['query']),
     'getBookingsByPhone' : IDL.Func(
         [IDL.Text],
         [IDL.Vec(ServiceBooking)],
         ['query'],
       ),
-    'getBookingsByService' : IDL.Func(
-        [IDL.Text],
-        [IDL.Vec(ServiceBooking)],
-        ['query'],
-      ),
-    'getContactForm' : IDL.Func([IDL.Text], [ContactForm], ['query']),
-    'getEventListing' : IDL.Func([IDL.Text], [EventListing], ['query']),
-    'getFutureEvents' : IDL.Func([], [IDL.Vec(EventListing)], ['query']),
-    'getServiceBooking' : IDL.Func([IDL.Nat], [ServiceBooking], ['query']),
-    'getServiceListing' : IDL.Func([IDL.Text], [ServiceListing], ['query']),
-    'getVendorListing' : IDL.Func([IDL.Text], [VendorListing], ['query']),
-    'getVendorsByCategory' : IDL.Func(
-        [IDL.Text],
-        [IDL.Vec(VendorListing)],
-        ['query'],
-      ),
+    'getBrightBlueElectrical' : IDL.Func([], [BrightBlueElectrical], []),
     'submitContactForm' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text, IDL.Text],
         [],
         [],
+      ),
+    'submitReview' : IDL.Func(
+        [IDL.Text, IDL.Nat, IDL.Text, IDL.Text],
+        [IDL.Nat],
+        [],
+      ),
+    'transform' : IDL.Func(
+        [TransformationInput],
+        [TransformationOutput],
+        ['query'],
       ),
   });
 };

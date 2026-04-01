@@ -10,17 +10,23 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export interface BrightBlueElectrical {
+  'name' : string,
+  'description' : string,
+  'rating' : number,
+}
 export interface ContactForm {
   'name' : string,
   'email' : string,
   'message' : string,
 }
-export interface EventListing {
-  'date' : string,
-  'name' : string,
-  'description' : string,
-  'imageUrl' : string,
-  'location' : string,
+export interface Review {
+  'id' : bigint,
+  'serviceName' : string,
+  'reviewerName' : string,
+  'comment' : string,
+  'timestamp' : Time,
+  'rating' : bigint,
 }
 export interface ServiceBooking {
   'serviceName' : string,
@@ -29,48 +35,35 @@ export interface ServiceBooking {
   'timestamp' : Time,
   'phone' : string,
 }
-export interface ServiceListing {
-  'icon' : string,
-  'name' : string,
-  'description' : string,
-}
 export type Time = bigint;
-export interface VendorListing {
-  'name' : string,
-  'description' : string,
-  'imageUrl' : string,
-  'category' : string,
-  'rating' : bigint,
+export interface TransformationInput {
+  'context' : Uint8Array,
+  'response' : http_request_result,
+}
+export interface TransformationOutput {
+  'status' : bigint,
+  'body' : Uint8Array,
+  'headers' : Array<http_header>,
+}
+export interface http_header { 'value' : string, 'name' : string }
+export interface http_request_result {
+  'status' : bigint,
+  'body' : Uint8Array,
+  'headers' : Array<http_header>,
 }
 export interface _SERVICE {
-  'addEventListing' : ActorMethod<
-    [string, string, string, string, string],
-    undefined
-  >,
-  'addServiceListing' : ActorMethod<[string, string, string], undefined>,
-  'addVendorListing' : ActorMethod<
-    [string, string, string, bigint, string],
-    undefined
-  >,
   'bookService' : ActorMethod<[string, string, string, string], bigint>,
   'getAllContactForms' : ActorMethod<[], Array<ContactForm>>,
-  'getAllEventListings' : ActorMethod<[], Array<EventListing>>,
+  'getAllReviews' : ActorMethod<[], Array<Review>>,
   'getAllServiceBookings' : ActorMethod<[], Array<ServiceBooking>>,
-  'getAllServiceListings' : ActorMethod<[], Array<ServiceListing>>,
-  'getAllVendorListings' : ActorMethod<[], Array<VendorListing>>,
   'getBookingsByPhone' : ActorMethod<[string], Array<ServiceBooking>>,
-  'getBookingsByService' : ActorMethod<[string], Array<ServiceBooking>>,
-  'getContactForm' : ActorMethod<[string], ContactForm>,
-  'getEventListing' : ActorMethod<[string], EventListing>,
-  'getFutureEvents' : ActorMethod<[], Array<EventListing>>,
-  'getServiceBooking' : ActorMethod<[bigint], ServiceBooking>,
-  'getServiceListing' : ActorMethod<[string], ServiceListing>,
-  'getVendorListing' : ActorMethod<[string], VendorListing>,
-  'getVendorsByCategory' : ActorMethod<[string], Array<VendorListing>>,
+  'getBrightBlueElectrical' : ActorMethod<[], BrightBlueElectrical>,
   'submitContactForm' : ActorMethod<
     [string, string, string, string],
     undefined
   >,
+  'submitReview' : ActorMethod<[string, bigint, string, string], bigint>,
+  'transform' : ActorMethod<[TransformationInput], TransformationOutput>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

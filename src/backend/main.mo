@@ -5,8 +5,13 @@ import Text "mo:core/Text";
 import Time "mo:core/Time";
 import Nat "mo:core/Nat";
 import Iter "mo:core/Iter";
+import List "mo:core/List";
 import Order "mo:core/Order";
+import Int "mo:core/Int";
+import OutCall "http-outcalls/outcall";
+import Migration "migration";
 
+(with migration = Migration.run)
 actor {
   type ContactForm = {
     name : Text;
@@ -51,6 +56,12 @@ actor {
     comment : Text;
     serviceName : Text;
     timestamp : Time.Time;
+  };
+
+  type BrightBlueElectrical = {
+    name : Text;
+    description : Text;
+    rating : Float;
   };
 
   module ServiceListing {
@@ -141,4 +152,17 @@ actor {
   public query func getAllContactForms() : async [ContactForm] {
     contactForms.values().toArray();
   };
+
+  // Example of HTTP outcall (not used in this project)
+  // This is just a demonstration, as no external API was specified
+  public query func transform(input : OutCall.TransformationInput) : async OutCall.TransformationOutput {
+    OutCall.transform(input);
+  };
+
+  public shared ({ caller }) func getBrightBlueElectrical() : async BrightBlueElectrical {
+    // Simulate HTTP outcall (would require actual outcall in real scenario)
+    // No response since `transform` is not needed here
+    { name = "Bright Blue Electrical"; description = "Expert electrical services."; rating = 4.8 };
+  };
 };
+

@@ -89,6 +89,26 @@ export class ExternalBlob {
         return this;
     }
 }
+export interface http_request_result {
+    status: bigint;
+    body: Uint8Array;
+    headers: Array<http_header>;
+}
+export interface TransformationOutput {
+    status: bigint;
+    body: Uint8Array;
+    headers: Array<http_header>;
+}
+export type Time = bigint;
+export interface ContactForm {
+    name: string;
+    email: string;
+    message: string;
+}
+export interface TransformationInput {
+    context: Uint8Array;
+    response: http_request_result;
+}
 export interface ServiceBooking {
     serviceName: string;
     area: string;
@@ -96,96 +116,36 @@ export interface ServiceBooking {
     timestamp: Time;
     phone: string;
 }
-export interface EventListing {
-    date: string;
+export interface BrightBlueElectrical {
     name: string;
     description: string;
-    imageUrl: string;
-    location: string;
+    rating: number;
 }
-export type Time = bigint;
-export interface VendorListing {
-    name: string;
-    description: string;
-    imageUrl: string;
-    category: string;
+export interface Review {
+    id: bigint;
+    serviceName: string;
+    reviewerName: string;
+    comment: string;
+    timestamp: Time;
     rating: bigint;
 }
-export interface ServiceListing {
-    icon: string;
+export interface http_header {
+    value: string;
     name: string;
-    description: string;
-}
-export interface ContactForm {
-    name: string;
-    email: string;
-    message: string;
 }
 export interface backendInterface {
-    addEventListing(name: string, description: string, date: string, location: string, imageUrl: string): Promise<void>;
-    addServiceListing(name: string, description: string, icon: string): Promise<void>;
-    addVendorListing(name: string, category: string, description: string, rating: bigint, imageUrl: string): Promise<void>;
     bookService(name: string, phone: string, area: string, serviceName: string): Promise<bigint>;
     getAllContactForms(): Promise<Array<ContactForm>>;
-    getAllEventListings(): Promise<Array<EventListing>>;
+    getAllReviews(): Promise<Array<Review>>;
     getAllServiceBookings(): Promise<Array<ServiceBooking>>;
-    getAllServiceListings(): Promise<Array<ServiceListing>>;
-    getAllVendorListings(): Promise<Array<VendorListing>>;
     getBookingsByPhone(phone: string): Promise<Array<ServiceBooking>>;
-    getBookingsByService(serviceName: string): Promise<Array<ServiceBooking>>;
-    getContactForm(formId: string): Promise<ContactForm>;
-    getEventListing(name: string): Promise<EventListing>;
-    getFutureEvents(): Promise<Array<EventListing>>;
-    getServiceBooking(bookingId: bigint): Promise<ServiceBooking>;
-    getServiceListing(name: string): Promise<ServiceListing>;
-    getVendorListing(name: string): Promise<VendorListing>;
-    getVendorsByCategory(category: string): Promise<Array<VendorListing>>;
+    getBrightBlueElectrical(): Promise<BrightBlueElectrical>;
     submitContactForm(formId: string, name: string, email: string, message: string): Promise<void>;
+    submitReview(reviewerName: string, rating: bigint, comment: string, serviceName: string): Promise<bigint>;
+    transform(input: TransformationInput): Promise<TransformationOutput>;
 }
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
-    async addEventListing(arg0: string, arg1: string, arg2: string, arg3: string, arg4: string): Promise<void> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.addEventListing(arg0, arg1, arg2, arg3, arg4);
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.addEventListing(arg0, arg1, arg2, arg3, arg4);
-            return result;
-        }
-    }
-    async addServiceListing(arg0: string, arg1: string, arg2: string): Promise<void> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.addServiceListing(arg0, arg1, arg2);
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.addServiceListing(arg0, arg1, arg2);
-            return result;
-        }
-    }
-    async addVendorListing(arg0: string, arg1: string, arg2: string, arg3: bigint, arg4: string): Promise<void> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.addVendorListing(arg0, arg1, arg2, arg3, arg4);
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.addVendorListing(arg0, arg1, arg2, arg3, arg4);
-            return result;
-        }
-    }
     async bookService(arg0: string, arg1: string, arg2: string, arg3: string): Promise<bigint> {
         if (this.processError) {
             try {
@@ -214,17 +174,17 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async getAllEventListings(): Promise<Array<EventListing>> {
+    async getAllReviews(): Promise<Array<Review>> {
         if (this.processError) {
             try {
-                const result = await this.actor.getAllEventListings();
+                const result = await this.actor.getAllReviews();
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.getAllEventListings();
+            const result = await this.actor.getAllReviews();
             return result;
         }
     }
@@ -242,34 +202,6 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async getAllServiceListings(): Promise<Array<ServiceListing>> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getAllServiceListings();
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getAllServiceListings();
-            return result;
-        }
-    }
-    async getAllVendorListings(): Promise<Array<VendorListing>> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getAllVendorListings();
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getAllVendorListings();
-            return result;
-        }
-    }
     async getBookingsByPhone(arg0: string): Promise<Array<ServiceBooking>> {
         if (this.processError) {
             try {
@@ -284,115 +216,17 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async getBookingsByService(arg0: string): Promise<Array<ServiceBooking>> {
+    async getBrightBlueElectrical(): Promise<BrightBlueElectrical> {
         if (this.processError) {
             try {
-                const result = await this.actor.getBookingsByService(arg0);
+                const result = await this.actor.getBrightBlueElectrical();
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.getBookingsByService(arg0);
-            return result;
-        }
-    }
-    async getContactForm(arg0: string): Promise<ContactForm> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getContactForm(arg0);
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getContactForm(arg0);
-            return result;
-        }
-    }
-    async getEventListing(arg0: string): Promise<EventListing> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getEventListing(arg0);
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getEventListing(arg0);
-            return result;
-        }
-    }
-    async getFutureEvents(): Promise<Array<EventListing>> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getFutureEvents();
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getFutureEvents();
-            return result;
-        }
-    }
-    async getServiceBooking(arg0: bigint): Promise<ServiceBooking> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getServiceBooking(arg0);
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getServiceBooking(arg0);
-            return result;
-        }
-    }
-    async getServiceListing(arg0: string): Promise<ServiceListing> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getServiceListing(arg0);
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getServiceListing(arg0);
-            return result;
-        }
-    }
-    async getVendorListing(arg0: string): Promise<VendorListing> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getVendorListing(arg0);
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getVendorListing(arg0);
-            return result;
-        }
-    }
-    async getVendorsByCategory(arg0: string): Promise<Array<VendorListing>> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getVendorsByCategory(arg0);
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getVendorsByCategory(arg0);
+            const result = await this.actor.getBrightBlueElectrical();
             return result;
         }
     }
@@ -407,6 +241,34 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.submitContactForm(arg0, arg1, arg2, arg3);
+            return result;
+        }
+    }
+    async submitReview(arg0: string, arg1: bigint, arg2: string, arg3: string): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.submitReview(arg0, arg1, arg2, arg3);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.submitReview(arg0, arg1, arg2, arg3);
+            return result;
+        }
+    }
+    async transform(arg0: TransformationInput): Promise<TransformationOutput> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.transform(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.transform(arg0);
             return result;
         }
     }
