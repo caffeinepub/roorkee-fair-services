@@ -23,11 +23,10 @@ export function PrivacyPolicy() {
         {/* Intro */}
         <section className="bg-white rounded-2xl shadow-sm border border-gold/20 p-6">
           <h2 className="text-midnight font-display font-bold text-lg mb-3">
-            Privacy Policy for Roorkee Fair Services
+            Our Commitment
           </h2>
           <p className="text-midnight/70 leading-relaxed">
-            We respect your privacy. This policy explains how we handle your
-            personal information when you use our services.
+            Roorkee Fair Services is committed to protecting your privacy.
           </p>
         </section>
 
@@ -40,9 +39,10 @@ export function PrivacyPolicy() {
             </h2>
           </div>
           <p className="text-midnight/70 leading-relaxed">
-            We only collect your <strong>Name</strong>,{" "}
-            <strong>Phone Number</strong>, and <strong>Area</strong> for service
-            booking purposes.
+            We collect only basic information like <strong>Name</strong>,{" "}
+            <strong>Phone Number</strong>, and <strong>Location</strong> for
+            booking Jantar (Generator), Solar, Tiles, Vehicle, and Taxi
+            services.
           </p>
         </section>
 
@@ -55,8 +55,8 @@ export function PrivacyPolicy() {
             </h2>
           </div>
           <p className="text-midnight/70 leading-relaxed">
-            This information is used strictly to connect you with our service
-            experts (Solar, Flooring, Vehicle, Taxi).
+            This data is used only to provide the requested service and is not
+            shared with any third-party marketing agencies.
           </p>
         </section>
 
@@ -69,26 +69,25 @@ export function PrivacyPolicy() {
             </h2>
           </div>
           <p className="text-midnight/70 leading-relaxed">
-            We do not sell or share your personal data with third-party
-            marketing companies.
+            We use secure servers to store your booking details.
           </p>
         </section>
 
-        {/* User Rights */}
+        {/* Contact Us */}
         <section className="bg-white rounded-2xl shadow-sm border border-gold/20 p-6">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-2 h-2 rounded-full bg-gold" />
             <h2 className="text-midnight font-display font-bold text-lg">
-              User Rights
+              Contact Us
             </h2>
           </div>
           <p className="text-midnight/70 leading-relaxed">
-            You can request to delete your data at any time by contacting us at{" "}
+            For any data-related queries, email us at{" "}
             <a
-              href="mailto:roorkeefairservices@gmail.com"
+              href="mailto:Roorkeefairservices@gmail.com"
               className="text-gold font-medium hover:underline"
             >
-              roorkeefairservices@gmail.com
+              Roorkeefairservices@gmail.com
             </a>
             .
           </p>
