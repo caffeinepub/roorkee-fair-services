@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "motion/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AIChatWidget } from "./components/AIChatWidget";
 import { AboutSection } from "./components/AboutSection";
 import { BookingModal } from "./components/BookingModal";
@@ -9,6 +9,7 @@ import { ContactSection } from "./components/ContactSection";
 import { FloatingButtons } from "./components/FloatingButtons";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
+import { PrivacyPolicy } from "./components/PrivacyPolicy";
 import { ReviewsSection } from "./components/ReviewsSection";
 import { ServicesSection } from "./components/ServicesSection";
 import { Sidebar } from "./components/Sidebar";
@@ -18,11 +19,28 @@ const queryClient = new QueryClient();
 
 type Section = "services" | "track" | "reviews" | "contact" | "about" | "chat";
 
+function usePrivacyRoute() {
+  const [isPrivacy, setIsPrivacy] = useState(
+    () => window.location.pathname === "/privacy-policy",
+  );
+
+  useEffect(() => {
+    const handler = () => {
+      setIsPrivacy(window.location.pathname === "/privacy-policy");
+    };
+    window.addEventListener("popstate", handler);
+    return () => window.removeEventListener("popstate", handler);
+  }, []);
+
+  return isPrivacy;
+}
+
 function AppContent() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<Section>("services");
   const [bookingService, setBookingService] = useState<string | null>(null);
   const [chatOpen, setChatOpen] = useState(false);
+  const isPrivacy = usePrivacyRoute();
 
   const handleNavigate = (section: Section) => {
     if (section === "chat") {
@@ -33,6 +51,10 @@ function AppContent() {
       setChatOpen(false);
     }
   };
+
+  if (isPrivacy) {
+    return <PrivacyPolicy />;
+  }
 
   return (
     <div className="min-h-screen bg-off-white font-body">
@@ -139,7 +161,6 @@ function AIChatWidgetControlled({
   externalOpen: boolean;
   onExternalClose: () => void;
 }) {
-  // AIChatWidget manages its own open state; we just open it externally
   return (
     <AIChatWidget
       initialOpen={externalOpen}
