@@ -9,9 +9,9 @@ import List "mo:core/List";
 import Order "mo:core/Order";
 import Int "mo:core/Int";
 import OutCall "http-outcalls/outcall";
-import Migration "migration";
 
-(with migration = Migration.run)
+
+
 actor {
   type ContactForm = {
     name : Text;

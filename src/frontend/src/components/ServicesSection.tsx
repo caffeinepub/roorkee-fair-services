@@ -96,7 +96,7 @@ export function ServicesSection({ onBook }: ServicesSectionProps) {
         <div className="w-16 h-1 bg-gold mx-auto mt-3 rounded-full" />
       </div>
       <div
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+        className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6"
         data-ocid="services.list"
       >
         {SERVICES.map((service, index) => (

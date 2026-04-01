@@ -22,31 +22,43 @@ export function BookingModal({ serviceName, onClose }: BookingModalProps) {
     setLoading(true);
     setError("");
     try {
-      const formData = new FormData();
-      formData.append("name", name);
-      formData.append("phone", phone);
-      formData.append("area", area);
-      formData.append("service", serviceName);
-      formData.append("_subject", "New Booking - Roorkee Fair Services");
-      formData.append("_captcha", "false");
-
       const res = await fetch(
         "https://formsubmit.co/ajax/roorkeefairservices@gmail.com",
         {
           method: "POST",
-          headers: { Accept: "application/json" },
-          body: formData,
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            name,
+            phone,
+            area,
+            service: serviceName,
+            _subject: `New Booking: ${serviceName} - Roorkee Fair Services`,
+            _captcha: "false",
+            _template: "table",
+            _replyto: "Roorkeefairservices@gmail.com",
+          }),
         },
       );
+
+      // FormSubmit may return non-JSON on first activation — treat any 2xx as success
       if (res.ok) {
         setSuccess(true);
       } else {
-        throw new Error("Submission failed");
+        // Try to read error body
+        let msg = "Submission failed";
+        try {
+          const data = await res.json();
+          if (data?.message) msg = data.message;
+        } catch {
+          /* ignore */
+        }
+        throw new Error(msg);
       }
     } catch {
-      setError(
-        "Something went wrong. Please try calling us directly at +91 7248116630.",
-      );
+      setError("Unable to submit right now. Please call us at +91 7248116630.");
     } finally {
       setLoading(false);
     }
@@ -101,10 +113,13 @@ export function BookingModal({ serviceName, onClose }: BookingModalProps) {
               >
                 <CheckCircle size={56} className="text-green-500" />
                 <p className="text-center text-midnight font-semibold text-lg">
-                  Booking submitted!
+                  Booking Submitted!
                 </p>
                 <p className="text-center text-gray-600 text-sm">
                   Our expert will contact you shortly at {phone}.
+                </p>
+                <p className="text-center text-gray-400 text-xs">
+                  A notification has been sent to Roorkeefairservices@gmail.com
                 </p>
                 <button
                   type="button"
@@ -188,7 +203,6 @@ export function BookingModal({ serviceName, onClose }: BookingModalProps) {
                   {loading && <Loader2 size={18} className="animate-spin" />}
                   {loading ? "Submitting..." : "Confirm Booking"}
                 </button>
-
                 <p className="text-xs text-center text-gray-400">
                   You'll receive a call from our expert soon after booking.
                 </p>

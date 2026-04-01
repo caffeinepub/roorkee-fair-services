@@ -1,7 +1,6 @@
 import { Loader2, MessageCircle, Send, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { useSubmitContact } from "../hooks/useQueries";
 
 type ChatStep = "awaitService" | "awaitName" | "awaitPhone" | "done";
 
@@ -33,7 +32,6 @@ export function AIChatWidget({
   const [capturedService, setCapturedService] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
-  const submitContact = useSubmitContact();
 
   useEffect(() => {
     if (initialOpen) setOpen(true);
@@ -58,6 +56,32 @@ export function AIChatWidget({
         { id: `bot-${Date.now()}`, role: "bot", text },
       ]);
     }, 700);
+  };
+
+  const sendLeadToEmail = async (
+    name: string,
+    phone: string,
+    service: string,
+  ) => {
+    try {
+      await fetch("https://formsubmit.co/ajax/roorkeefairservices@gmail.com", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          phone,
+          service,
+          _subject: `AI Chat Lead: ${service} - Roorkee Fair Services`,
+          _captcha: "false",
+          _template: "table",
+        }),
+      });
+    } catch {
+      // silent fail — lead capture is best-effort
+    }
   };
 
   const handleSend = async () => {
@@ -85,16 +109,7 @@ export function AIChatWidget({
       addBotMessage(
         `Thank you, ${capturedName}! Our expert will call you shortly at ${phone} regarding ${capturedService || "your service request"}.`,
       );
-      try {
-        await submitContact.mutateAsync({
-          formId: `chat-${Date.now()}`,
-          name: capturedName,
-          email: "",
-          message: `Service: ${capturedService} | Phone: ${phone}`,
-        });
-      } catch {
-        // silent fail
-      }
+      sendLeadToEmail(capturedName, phone, capturedService);
     } else {
       setStep("awaitService");
       addBotMessage(
