@@ -20,16 +20,6 @@ export function PrivacyPolicy() {
 
       {/* Content */}
       <div className="max-w-3xl mx-auto px-4 py-10 space-y-8">
-        {/* Intro */}
-        <section className="bg-white rounded-2xl shadow-sm border border-gold/20 p-6">
-          <h2 className="text-midnight font-display font-bold text-lg mb-3">
-            Our Commitment
-          </h2>
-          <p className="text-midnight/70 leading-relaxed">
-            Roorkee Fair Services is committed to protecting your privacy.
-          </p>
-        </section>
-
         {/* Data Collection */}
         <section className="bg-white rounded-2xl shadow-sm border border-gold/20 p-6">
           <div className="flex items-center gap-3 mb-3">
@@ -39,57 +29,24 @@ export function PrivacyPolicy() {
             </h2>
           </div>
           <p className="text-midnight/70 leading-relaxed">
-            We collect only basic information like <strong>Name</strong>,{" "}
-            <strong>Phone Number</strong>, and <strong>Location</strong> for
-            booking Jantar (Generator), Solar, Tiles, Vehicle, and Taxi
-            services.
+            We collect <strong>Name</strong>, <strong>Phone Number</strong>, and{" "}
+            <strong>Manual Location (typed by user)</strong> only for service
+            booking purposes.
           </p>
         </section>
 
-        {/* Data Usage */}
+        {/* Third-Party Sharing */}
         <section className="bg-white rounded-2xl shadow-sm border border-gold/20 p-6">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-2 h-2 rounded-full bg-gold" />
             <h2 className="text-midnight font-display font-bold text-lg">
-              Data Usage
+              No Third-Party Sharing
             </h2>
           </div>
           <p className="text-midnight/70 leading-relaxed">
-            This data is used only to provide the requested service and is not
-            shared with any third-party marketing agencies.
-          </p>
-        </section>
-
-        {/* Data Security */}
-        <section className="bg-white rounded-2xl shadow-sm border border-gold/20 p-6">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-2 h-2 rounded-full bg-gold" />
-            <h2 className="text-midnight font-display font-bold text-lg">
-              Data Security
-            </h2>
-          </div>
-          <p className="text-midnight/70 leading-relaxed">
-            We use secure servers to store your booking details.
-          </p>
-        </section>
-
-        {/* Contact Us */}
-        <section className="bg-white rounded-2xl shadow-sm border border-gold/20 p-6">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-2 h-2 rounded-full bg-gold" />
-            <h2 className="text-midnight font-display font-bold text-lg">
-              Contact Us
-            </h2>
-          </div>
-          <p className="text-midnight/70 leading-relaxed">
-            For any data-related queries, email us at{" "}
-            <a
-              href="mailto:Roorkeefairservices@gmail.com"
-              className="text-gold font-medium hover:underline"
-            >
-              Roorkeefairservices@gmail.com
-            </a>
-            .
+            <strong>We do not share your data with any third parties.</strong>{" "}
+            Your information is used solely to connect you with our service
+            experts.
           </p>
         </section>
 
